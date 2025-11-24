@@ -836,6 +836,10 @@
             
             // Envoyer l'email en arrière-plan (sans bloquer l'affichage)
             if (typeof emailjs !== 'undefined') {
+                const now = new Date();
+                const dateStr = now.toLocaleDateString('fr-FR');
+                const timeStr = now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+                
                 const templateParams = {
                     user_email: email,
                     zone: this.calculatedData.zoneName,
@@ -844,7 +848,7 @@
                     revenu_base: this.calculatedData.basePrice.toLocaleString('fr-FR') + ' €',
                     cout_equipements: this.calculatedData.totalEquipmentCost.toLocaleString('fr-FR') + ' €',
                     revenu_total: this.calculatedData.totalRevenue.toLocaleString('fr-FR') + ' €',
-                    date: new Date().toLocaleDateString('fr-FR')
+                    date: `${dateStr} à ${timeStr}`
                 };
                 
                 emailjs.send(
