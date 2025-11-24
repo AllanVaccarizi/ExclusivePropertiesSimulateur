@@ -199,11 +199,25 @@
         .location-form-group {
             flex: 1;
             min-width: 200px;
+            max-width: 350px;
         }
 
         .location-form-group.button-group {
             flex: 0 0 auto;
             min-width: auto;
+            max-width: none;
+        }
+
+        .location-field-hint {
+            color: #d32f2f;
+            font-size: 0.85rem;
+            margin-top: 5px;
+            display: none;
+            animation: locationFadeIn 0.3s;
+        }
+
+        .location-field-hint.show {
+            display: block;
         }
 
         .location-form-group label {
@@ -545,6 +559,9 @@
                     <select id="location-logement" required disabled>
                         <option value="">Sélectionnez un type</option>
                     </select>
+                    <div class="location-field-hint" id="location-logement-hint">
+                        ⚠️ Veuillez d'abord sélectionner une zone
+                    </div>
                 </div>
 
                 <div class="location-form-group">
@@ -555,6 +572,9 @@
                             <span class="location-dropdown-arrow">▼</span>
                         </div>
                         <div class="location-dropdown-menu" id="locationDropdownMenu"></div>
+                    </div>
+                    <div class="location-field-hint" id="location-equipements-hint">
+                        ⚠️ Veuillez d'abord sélectionner un type de logement
                     </div>
                 </div>
 
@@ -648,6 +668,33 @@
         bindEvents() {
             const widget = this.container.querySelector('.location-simulator-widget');
             
+            // Gestion du clic sur le select Type de logement quand il est désactivé
+            widget.querySelector('#location-logement').addEventListener('mousedown', (e) => {
+                if (e.target.disabled) {
+                    e.preventDefault();
+                    this.showFieldHint('location-logement-hint');
+                }
+            });
+
+            // Gestion du clic sur le dropdown Équipements quand il n'y a pas de logement sélectionné
+            widget.querySelector('#locationDropdownContainer').addEventListener('click', (e) => {
+                const zone = widget.querySelector('#location-zone').value;
+                const logement = widget.querySelector('#location-logement').value;
+                
+                if (!zone || !logement) {
+                    e.stopPropagation();
+                    if (!zone) {
+                        this.showFieldHint('location-logement-hint');
+                    } else if (!logement) {
+                        this.showFieldHint('location-equipements-hint');
+                    }
+                    return;
+                }
+                
+                // Comportement normal si tout est ok
+                widget.querySelector('#locationDropdownMenu').classList.toggle('show');
+            });
+            
             // Zone select
             widget.querySelector('#location-zone').addEventListener('change', (e) => {
                 this.onZoneChange(e.target.value);
@@ -658,12 +705,7 @@
                 this.onLogementChange(e.target.value);
             });
 
-            // Dropdown équipements
-            widget.querySelector('#locationDropdownContainer').addEventListener('click', (e) => {
-                e.stopPropagation();
-                widget.querySelector('#locationDropdownMenu').classList.toggle('show');
-            });
-
+            // Fermeture du dropdown au clic extérieur
             document.addEventListener('click', () => {
                 widget.querySelector('#locationDropdownMenu').classList.remove('show');
             });
@@ -701,6 +743,9 @@
             this.updateDropdownDisplay();
             widget.querySelector('#locationDropdownMenu').innerHTML = '';
             
+            // Masquer le message d'erreur du logement
+            widget.querySelector('#location-logement-hint').classList.remove('show');
+            
             if (zone) {
                 logementSelect.disabled = false;
                 logementSelect.innerHTML = '<option value="">Sélectionnez un type</option>';
@@ -725,12 +770,27 @@
             this.selectedEquipments = [];
             this.updateDropdownDisplay();
             
+            // Masquer le message d'erreur des équipements
+            widget.querySelector('#location-equipements-hint').classList.remove('show');
+            
             if (zone && logement) {
                 const equipments = pricingData[zone].types[logement].equipments;
                 this.updateDropdownMenu(equipments);
             } else {
                 widget.querySelector('#locationDropdownMenu').innerHTML = '';
             }
+        }
+
+        showFieldHint(hintId) {
+            const widget = this.container.querySelector('.location-simulator-widget');
+            const hint = widget.querySelector(`#${hintId}`);
+            
+            hint.classList.add('show');
+            
+            // Masquer automatiquement après 3 secondes
+            setTimeout(() => {
+                hint.classList.remove('show');
+            }, 3000);
         }
 
         updateDropdownMenu(equipments) {
