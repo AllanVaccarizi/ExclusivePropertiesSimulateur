@@ -471,33 +471,6 @@
             display: block;
         }
 
-        .location-success-message {
-            color: #2e7d32;
-            font-size: 0.9rem;
-            margin-top: 5px;
-            display: none;
-        }
-
-        .location-success-message.show {
-            display: block;
-        }
-
-        .location-loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #000000;
-            border-radius: 50%;
-            animation: locationSpin 1s linear infinite;
-            margin-left: 10px;
-        }
-
-        @keyframes locationSpin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
         @media (max-width: 768px) {
             .location-simulator-widget h1 {
                 font-size: 2rem;
@@ -593,7 +566,6 @@
                             required
                         >
                         <div class="location-error-message" id="locationEmailError">Veuillez entrer une adresse email valide</div>
-                        <div class="location-success-message" id="locationEmailSuccess">Email envoyé avec succès !</div>
                     </div>
                     
                     <div class="location-button-group">
@@ -839,7 +811,6 @@
             widget.querySelector('#locationEmailContainer').classList.remove('show');
             widget.querySelector('#locationFormContainer').style.display = 'flex';
             widget.querySelector('#locationEmailError').classList.remove('show');
-            widget.querySelector('#locationEmailSuccess').classList.remove('show');
         }
 
         validateEmail(email) {
@@ -847,15 +818,12 @@
             return re.test(email);
         }
 
-        async showResults() {
+        showResults() {
             const widget = this.container.querySelector('.location-simulator-widget');
             const email = widget.querySelector('#locationUserEmail').value.trim();
             const errorMessage = widget.querySelector('#locationEmailError');
-            const successMessage = widget.querySelector('#locationEmailSuccess');
-            const submitBtn = widget.querySelector('#locationSubmitBtn');
             
             errorMessage.classList.remove('show');
-            successMessage.classList.remove('show');
             
             if (!email || !this.validateEmail(email)) {
                 errorMessage.classList.add('show');
@@ -863,42 +831,29 @@
                 return;
             }
             
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = 'Envoi en cours...<span class="location-loading"></span>';
+            // Afficher immédiatement les résultats
+            this.displayResults();
             
-            try {
-                if (typeof emailjs !== 'undefined') {
-                    const templateParams = {
-                        user_email: email,
-                        zone: this.calculatedData.zoneName,
-                        logement: this.calculatedData.logementName,
-                        equipements: this.calculatedData.equipments,
-                        revenu_base: this.calculatedData.basePrice.toLocaleString('fr-FR') + ' €',
-                        cout_equipements: this.calculatedData.totalEquipmentCost.toLocaleString('fr-FR') + ' €',
-                        revenu_total: this.calculatedData.totalRevenue.toLocaleString('fr-FR') + ' €',
-                        date: new Date().toLocaleDateString('fr-FR')
-                    };
-                    
-                    await emailjs.send(
-                        this.config.emailjs.serviceId,
-                        this.config.emailjs.templateId,
-                        templateParams
-                    );
-                    
-                    successMessage.classList.add('show');
-                }
+            // Envoyer l'email en arrière-plan (sans bloquer l'affichage)
+            if (typeof emailjs !== 'undefined') {
+                const templateParams = {
+                    user_email: email,
+                    zone: this.calculatedData.zoneName,
+                    logement: this.calculatedData.logementName,
+                    equipements: this.calculatedData.equipments,
+                    revenu_base: this.calculatedData.basePrice.toLocaleString('fr-FR') + ' €',
+                    cout_equipements: this.calculatedData.totalEquipmentCost.toLocaleString('fr-FR') + ' €',
+                    revenu_total: this.calculatedData.totalRevenue.toLocaleString('fr-FR') + ' €',
+                    date: new Date().toLocaleDateString('fr-FR')
+                };
                 
-                setTimeout(() => {
-                    this.displayResults();
-                }, 1000);
-                
-            } catch (error) {
-                console.error('Erreur lors de l\'envoi de l\'email:', error);
-                alert('Une erreur est survenue lors de l\'envoi de l\'email, mais vous pouvez consulter vos résultats ci-dessous.');
-                this.displayResults();
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = 'Voir les résultats';
+                emailjs.send(
+                    this.config.emailjs.serviceId,
+                    this.config.emailjs.templateId,
+                    templateParams
+                ).catch(error => {
+                    console.error('Erreur lors de l\'envoi de l\'email:', error);
+                });
             }
         }
 
@@ -940,7 +895,6 @@
             this.updateDropdownDisplay();
             widget.querySelector('#locationDropdownMenu').innerHTML = '';
             widget.querySelector('#locationEmailError').classList.remove('show');
-            widget.querySelector('#locationEmailSuccess').classList.remove('show');
             
             widget.querySelector('#locationFormContainer').style.display = 'flex';
             widget.querySelector('#locationResultContainer').classList.remove('show');
