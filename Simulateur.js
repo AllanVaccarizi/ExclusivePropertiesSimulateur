@@ -927,7 +927,7 @@
         version: '1.0.0'
     };
 
-    // Auto-initialisation
+    // Auto initialisation
     function autoInit() {
         const defaultContainer = document.getElementById('simulateur-location');
         if (defaultContainer && !defaultContainer.hasAttribute('data-manual-init')) {
