@@ -254,6 +254,11 @@
             align-items: center;
         }
 
+        .location-dropdown-container.disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
         .location-dropdown-container:hover {
             border-color: #4a5568;
         }
@@ -676,7 +681,7 @@
                 }
             });
 
-            // Gestion du clic sur le dropdown Équipements quand il n'y a pas de logement sélectionné
+            // Gestion du clic sur le dropdown Équipements
             widget.querySelector('#locationDropdownContainer').addEventListener('click', (e) => {
                 const zone = widget.querySelector('#location-zone').value;
                 const logement = widget.querySelector('#location-logement').value;
@@ -691,7 +696,8 @@
                     return;
                 }
                 
-                // Comportement normal si tout est ok
+                // Comportement normal si tout est ok - toggle le menu
+                e.stopPropagation();
                 widget.querySelector('#locationDropdownMenu').classList.toggle('show');
             });
             
