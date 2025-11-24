@@ -1,25 +1,8 @@
-<!-- EmailJS SDK -->
+<!-- EmailJS SDK (obligatoire - à mettre dans le <head>) -->
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 
-<!-- Conteneur avec attribut data-manual-init -->
-<div id="simulateur-location" data-manual-init></div>
+<!-- Conteneur du simulateur (à mettre où tu veux afficher le simulateur) -->
+<div id="simulateur-location"></div>
 
 <!-- Script du widget -->
 <script src="https://exclusive-properties-simulateur.vercel.app/Simulateur.js"></script>
-
-<!-- Initialisation personnalisée -->
-<script>
-  SimulateurLocation.init({
-    containerId: 'simulateur-location',
-    emailjs: {
-      publicKey: 'XtLTL6RMg6LAc5Ck4',
-      serviceId: 'service_p2gxskg',
-      templateId: 'template_pd3f75l'
-    },
-    theme: {
-      primaryColor: '#000000',    // Couleur principale
-      secondaryColor: '#666666'   // Couleur secondaire
-    },
-    debug: false  // Passe à true pour voir les logs
-  });
-</script>

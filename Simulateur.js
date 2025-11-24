@@ -17,6 +17,10 @@
             serviceId: 'service_p2gxskg',
             templateId: 'template_pd3f75l'
         },
+        googleAds: {
+            conversionId: 'AW-17044655812',
+            conversionLabel: 'CS6VCOmq98UbEMSdw78_'
+        },
         debug: false,
         theme: {
             primaryColor: '#000000',
@@ -818,6 +822,44 @@
             return re.test(email);
         }
 
+        triggerGoogleAdsConversion(email) {
+            // Vérifier que gtag existe
+            if (typeof window.gtag !== 'function') {
+                if (this.config.debug) {
+                    console.error('❌ gtag non disponible - Vérifiez que le Global Site Tag Google Ads est bien installé');
+                }
+                return;
+            }
+
+            try {
+                const conversionString = this.config.googleAds.conversionId + '/' + this.config.googleAds.conversionLabel;
+                
+                // Générer un ID de transaction unique
+                const transactionId = 'LOC_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                
+                // Déclencher la conversion
+                window.gtag('event', 'conversion', {
+                    'send_to': conversionString,
+                    'value': 1.0,
+                    'currency': 'EUR',
+                    'transaction_id': transactionId
+                });
+
+                if (this.config.debug) {
+                    console.log('✅ CONVERSION GOOGLE ADS ENVOYÉE:', {
+                        send_to: conversionString,
+                        transaction_id: transactionId,
+                        email: email
+                    });
+                }
+                
+            } catch (error) {
+                if (this.config.debug) {
+                    console.error('❌ Erreur lors du déclenchement de la conversion Google Ads:', error);
+                }
+            }
+        }
+
         showResults() {
             const widget = this.container.querySelector('.location-simulator-widget');
             const email = widget.querySelector('#locationUserEmail').value.trim();
@@ -830,6 +872,9 @@
                 widget.querySelector('#locationUserEmail').focus();
                 return;
             }
+            
+            // ✅ DÉCLENCHER LA CONVERSION GOOGLE ADS
+            this.triggerGoogleAdsConversion(email);
             
             // Afficher immédiatement les résultats
             this.displayResults();
@@ -927,7 +972,7 @@
         version: '1.0.0'
     };
 
-    // Auto initialisation
+    // Auto-initialisation
     function autoInit() {
         const defaultContainer = document.getElementById('simulateur-location');
         if (defaultContainer && !defaultContainer.hasAttribute('data-manual-init')) {
