@@ -193,6 +193,7 @@
             align-items: flex-end;
             flex-wrap: wrap;
             margin-bottom: 30px;
+            justify-content: center;
         }
 
         .location-form-group {
