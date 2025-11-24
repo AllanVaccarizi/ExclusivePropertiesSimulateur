@@ -204,8 +204,7 @@
         }
 
         .location-form-group select,
-        .location-dropdown-container,
-        .location-form-group input[type="email"] {
+        .location-dropdown-container {
             width: 100%;
             padding: 12px;
             border: 2px solid #e0e0e0;
@@ -216,10 +215,6 @@
             color: #000000;
             cursor: pointer;
             transition: border-color 0.3s;
-        }
-
-        .location-form-group input[type="email"] {
-            cursor: text;
         }
 
         .location-dropdown-wrapper {
@@ -233,12 +228,6 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-        }
-
-        .location-form-group select:focus,
-        .location-form-group input[type="email"]:focus {
-            outline: none;
-            border-color: #4a5568;
         }
 
         .location-dropdown-container:hover {
@@ -355,6 +344,23 @@
         .location-email-input-group {
             width: 100%;
             max-width: 400px;
+        }
+
+        .location-email-input-group input[type="email"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-family: 'Raleway', sans-serif;
+            font-size: 1rem;
+            background-color: #ffffff;
+            color: #000000;
+            transition: border-color 0.3s;
+        }
+
+        .location-email-input-group input[type="email"]:focus {
+            outline: none;
+            border-color: #4a5568;
         }
 
         .location-result-container {
