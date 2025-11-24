@@ -201,6 +201,11 @@
             min-width: 200px;
         }
 
+        .location-form-group.button-group {
+            flex: 0 0 auto;
+            min-width: auto;
+        }
+
         .location-form-group label {
             display: block;
             margin-bottom: 8px;
@@ -553,7 +558,7 @@
                     </div>
                 </div>
 
-                <div class="location-form-group">
+                <div class="location-form-group button-group">
                     <button type="button" class="location-btn" id="locationCalculateBtn">Calculer</button>
                 </div>
             </div>
