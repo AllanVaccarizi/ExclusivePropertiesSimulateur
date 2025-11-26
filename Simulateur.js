@@ -1,5 +1,5 @@
 // Widget Simulateur Location Courte Durée - Version Embeddable
-// Version: 1.0.0
+// Version: 1.1.0
 // Usage: <script src="simulateur-location-widget.js"></script>
 //        <div id="simulateur-location"></div>
 
@@ -375,7 +375,9 @@
             max-width: 400px;
         }
 
-        .location-email-input-group input[type="email"] {
+        .location-email-input-group input[type="text"],
+        .location-email-input-group input[type="email"],
+        .location-email-input-group input[type="tel"] {
             width: 100%;
             padding: 12px;
             border: 2px solid #e0e0e0;
@@ -387,7 +389,9 @@
             transition: border-color 0.3s;
         }
 
-        .location-email-input-group input[type="email"]:focus {
+        .location-email-input-group input[type="text"]:focus,
+        .location-email-input-group input[type="email"]:focus,
+        .location-email-input-group input[type="tel"]:focus {
             outline: none;
             border-color: #4a5568;
         }
@@ -590,17 +594,47 @@
 
             <div class="location-email-container" id="locationEmailContainer">
                 <h2>Dernière étape !</h2>
-                <p>Entrez votre adresse email pour recevoir votre estimation détaillée</p>
+                <p>Renseignez vos coordonnées pour recevoir votre estimation détaillée</p>
                 
                 <div class="location-email-form">
                     <div class="location-email-input-group">
                         <input 
+                            type="text" 
+                            id="locationUserFirstName" 
+                            placeholder="Prénom *"
+                            required
+                        >
+                        <div class="location-error-message" id="locationFirstNameError">Veuillez entrer votre prénom</div>
+                    </div>
+
+                    <div class="location-email-input-group">
+                        <input 
+                            type="text" 
+                            id="locationUserLastName" 
+                            placeholder="Nom *"
+                            required
+                        >
+                        <div class="location-error-message" id="locationLastNameError">Veuillez entrer votre nom</div>
+                    </div>
+
+                    <div class="location-email-input-group">
+                        <input 
                             type="email" 
                             id="locationUserEmail" 
-                            placeholder="votre@email.fr"
+                            placeholder="Email *"
                             required
                         >
                         <div class="location-error-message" id="locationEmailError">Veuillez entrer une adresse email valide</div>
+                    </div>
+
+                    <div class="location-email-input-group">
+                        <input 
+                            type="tel" 
+                            id="locationUserPhone" 
+                            placeholder="Téléphone *"
+                            required
+                        >
+                        <div class="location-error-message" id="locationPhoneError">Veuillez entrer un numéro de téléphone valide</div>
                     </div>
                     
                     <div class="location-button-group">
@@ -733,11 +767,14 @@
                 this.resetSimulator();
             });
 
-            // Email input - Enter key
-            widget.querySelector('#locationUserEmail').addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    this.showResults();
-                }
+            // Enter key sur tous les champs du formulaire
+            const formInputs = ['#locationUserFirstName', '#locationUserLastName', '#locationUserEmail', '#locationUserPhone'];
+            formInputs.forEach(selector => {
+                widget.querySelector(selector).addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        this.showResults();
+                    }
+                });
             });
         }
 
@@ -878,7 +915,7 @@
             widget.querySelector('#locationEmailContainer').classList.add('show');
             
             setTimeout(() => {
-                widget.querySelector('#locationUserEmail').focus();
+                widget.querySelector('#locationUserFirstName').focus();
             }, 100);
         }
 
@@ -886,12 +923,23 @@
             const widget = this.container.querySelector('.location-simulator-widget');
             widget.querySelector('#locationEmailContainer').classList.remove('show');
             widget.querySelector('#locationFormContainer').style.display = 'flex';
+            
+            // Masquer tous les messages d'erreur
+            widget.querySelector('#locationFirstNameError').classList.remove('show');
+            widget.querySelector('#locationLastNameError').classList.remove('show');
             widget.querySelector('#locationEmailError').classList.remove('show');
+            widget.querySelector('#locationPhoneError').classList.remove('show');
         }
 
         validateEmail(email) {
             const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             return re.test(email);
+        }
+
+        validatePhone(phone) {
+            // Validation simple : au moins 10 chiffres
+            const digitsOnly = phone.replace(/\D/g, '');
+            return digitsOnly.length >= 10;
         }
 
         triggerGoogleAdsConversion(email) {
@@ -934,14 +982,49 @@
 
         showResults() {
             const widget = this.container.querySelector('.location-simulator-widget');
-            const email = widget.querySelector('#locationUserEmail').value.trim();
-            const errorMessage = widget.querySelector('#locationEmailError');
             
-            errorMessage.classList.remove('show');
+            // Récupération des valeurs
+            const firstName = widget.querySelector('#locationUserFirstName').value.trim();
+            const lastName = widget.querySelector('#locationUserLastName').value.trim();
+            const email = widget.querySelector('#locationUserEmail').value.trim();
+            const phone = widget.querySelector('#locationUserPhone').value.trim();
+            
+            // Récupération des messages d'erreur
+            const firstNameError = widget.querySelector('#locationFirstNameError');
+            const lastNameError = widget.querySelector('#locationLastNameError');
+            const emailError = widget.querySelector('#locationEmailError');
+            const phoneError = widget.querySelector('#locationPhoneError');
+            
+            // Masquer tous les messages d'erreur
+            firstNameError.classList.remove('show');
+            lastNameError.classList.remove('show');
+            emailError.classList.remove('show');
+            phoneError.classList.remove('show');
+            
+            // Validation
+            let hasError = false;
+            
+            if (!firstName) {
+                firstNameError.classList.add('show');
+                hasError = true;
+            }
+            
+            if (!lastName) {
+                lastNameError.classList.add('show');
+                hasError = true;
+            }
             
             if (!email || !this.validateEmail(email)) {
-                errorMessage.classList.add('show');
-                widget.querySelector('#locationUserEmail').focus();
+                emailError.classList.add('show');
+                hasError = true;
+            }
+            
+            if (!phone || !this.validatePhone(phone)) {
+                phoneError.classList.add('show');
+                hasError = true;
+            }
+            
+            if (hasError) {
                 return;
             }
             
@@ -958,7 +1041,10 @@
                 const timeStr = now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
                 
                 const templateParams = {
+                    user_first_name: firstName,
+                    user_last_name: lastName,
                     user_email: email,
+                    user_phone: phone,
                     zone: this.calculatedData.zoneName,
                     logement: this.calculatedData.logementName,
                     equipements: this.calculatedData.equipments,
@@ -1010,12 +1096,20 @@
             widget.querySelector('#location-zone').value = '';
             widget.querySelector('#location-logement').value = '';
             widget.querySelector('#location-logement').disabled = true;
+            widget.querySelector('#locationUserFirstName').value = '';
+            widget.querySelector('#locationUserLastName').value = '';
             widget.querySelector('#locationUserEmail').value = '';
+            widget.querySelector('#locationUserPhone').value = '';
             this.selectedEquipments = [];
             this.calculatedData = null;
             this.updateDropdownDisplay();
             widget.querySelector('#locationDropdownMenu').innerHTML = '';
+            
+            // Masquer tous les messages d'erreur
+            widget.querySelector('#locationFirstNameError').classList.remove('show');
+            widget.querySelector('#locationLastNameError').classList.remove('show');
             widget.querySelector('#locationEmailError').classList.remove('show');
+            widget.querySelector('#locationPhoneError').classList.remove('show');
             
             widget.querySelector('#locationFormContainer').style.display = 'flex';
             widget.querySelector('#locationResultContainer').classList.remove('show');
@@ -1041,7 +1135,7 @@
             }
         },
         
-        version: '1.0.0'
+        version: '1.1.0'
     };
 
     // Auto-initialisation
