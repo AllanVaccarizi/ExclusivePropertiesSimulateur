@@ -13,9 +13,9 @@
     const defaultConfig = {
         containerId: 'simulateur-location',
         emailjs: {
-            publicKey: 'XtLTL6RMg6LAc5Ck4',
-            serviceId: 'service_p2gxskg',
-            templateId: 'template_pd3f75l'
+            publicKey: 'KbcZj1BqvLG9T_u4Y',
+            serviceId: 'service_sdjrxry',
+            templateId: 'template_qlncdks'
         },
         googleAds: {
             conversionId: 'AW-17044655812',
